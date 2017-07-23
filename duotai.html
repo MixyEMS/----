@@ -5,7 +5,26 @@
 </head>
 <body>
   <script>
-      
+   var  dog = {
+   	  say:function(){
+   	  	console.log("汪汪汪");
+   	  }
+   }
+
+     var  cat = {
+   	  say:function(){
+   	  	console.log("喵喵喵");
+   	  }
+   }
+
+   var animalSay = function(animal){
+   	 if(animal.say instanceof Function){
+   	 	 animal.say();
+   	 }
+   }
+
+   animalSay(cat);
+   animalSay(dog);
   </script>
 </body>
 </html>

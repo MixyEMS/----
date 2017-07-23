@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title></title>
+</head>
+
+<body>
+    <a href="javascript:void(0);" id="btnLogin">login</a>
+    <script>
+        var single = function(name) {
+            this.name = name;
+            this.instance = null
+        }
+
+        single.prototype.getName = function() {
+            console.log(this.name);
+        }
+
+        single.getInstance = function(name) {
+            if (!this.instance) {
+                this.instance = new single(name);
+            }
+            return this.instance;
+        }
+
+        var a = single.getInstance("Mr.LI");
+        var b = single.getInstance("Mrs.MI");
+
+        console.log(a === b);
+        a.getName()
+        b.getName()
+    </script>
+    <script>
+        var CreateDiv = (function() {
+            var instance;
+
+            var createDiv = function(html) {
+                if (instance) {
+                    return instance;
+                }
+
+                this.html = html;
+                this.init();
+                return instance = this;
+            }
+
+            createDiv.prototype.init = function() {
+                var div = document.createElement('div');
+                div.innerHTML = this.html;
+                document.body.appendChild(div);
+            }
+
+            return createDiv;
+        })();
+
+        var a = new CreateDiv("Mr.LI");
+        var b = new CreateDiv("Mrs.MI");
+    </script>
+    <!-- 代理实现单例 -->
+    <script>
+       var CreateDiv = function(html){
+          this.html = html;
+          this.init();
+       }
+
+       CreateDiv.prototype.init = function(){
+          var div = document.createElement('div');
+          div.innerHTML = this.html;
+          document.body.appendChild(div);
+      }
+
+       var ProxySingleCreateDiv = (function(){
+          var instance;
+          return function(html){
+            if(!instance){
+               instance = new CreateDiv(html);
+            }
+            return instance;
+          }
+       })();
+
+       var a = ProxySingleCreateDiv("Mr.LI_PROXY");
+       var b = ProxySingleCreateDiv("Mrs.MI_PROXY");
+    </script>
+    <!-- 创建命名空间 -->
+    <script>
+         var myAPP = {};
+         myAPP.namespace = function(name){
+           var  parts = name.split('.');
+           var current = myAPP;
+
+           for(var i = 0 ; i < parts.length ; i++){
+             if(!current[parts[i]]){
+                 current[parts[i]] = {}
+             }
+             current = current[parts[i]];
+           }
+         }
+
+         myAPP.namespace("style");
+         myAPP.namespace("css.background");
+         myAPP.namespace("css.background.image");
+
+         console.log(myAPP);
+    </script>
+    <!-- 惰性单例 -->
+    <script>
+        var createLoginLayer = function(){
+             var div = document.createElement('div');
+             div.innerHTML = "我是登录窗";
+             div.style.display = "none";
+             document.body.appendChild(div);
+             return div;
+        }
+
+       var getSingle = (function(){
+             var single ;
+             return function(fn){
+                 return single || ( single = fn.apply(this,arguments));
+             }
+        })();
+
+
+       document.getElementById("btnLogin").onclick = function(){
+          var mwin = getSingle(createLoginLayer);
+          mwin.style.display = "block";
+       }
+
+    </script>
+</body>
+
+</html>
