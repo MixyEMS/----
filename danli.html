@@ -114,16 +114,17 @@
              return div;
         }
 
-       var getSingle = (function(){
+       var getSingle = function(fn){
              var single ;
-             return function(fn){
+             return function(){
                  return single || ( single = fn.apply(this,arguments));
              }
-        })();
+        };
 
-
+       var createSingleLoginLayer = getSingle(createLoginLayer);
+       
        document.getElementById("btnLogin").onclick = function(){
-          var mwin = getSingle(createLoginLayer);
+          var mwin = createSingleLoginLayer();
           mwin.style.display = "block";
        }
 
