@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+  <style>
+    #div{
+      position: absolute;
+      width:100px;
+      height: 100px;
+      background-color:pink;
+      top:100px;
+      left:100px;
+    }
+   </style>
+</head>
+<body>
+  <div id="div"></div>
+  <!-- 表单 -->
+  <form action="">
+       请输入用户名：<input type="text" name="userName"/>
+       请输入密码：<input type="text" name="password"/>
+       请输入手机号码：<input type="text" name="phoneNumber"/>
+  </form>
+<!-- 简单的策略模式 -->
+  <script>
+    var strategies = {
+      "S":function(salary){
+         return 4*salary;
+      },
+      "A":function(salary){
+         return 3*salary;
+      },
+      "B":function(salary){
+         return 2*salary;
+      }
+    }
+
+    var caculateBonus = function(level,salary){
+        return strategies[level](salary);
+    }
+
+    // console.log(caculateBonus("S",30000));
+    // console.log(caculateBonus("A",30000));
+  </script>
+<!-- 实现一个缓动动画 -->
+  <script>
+      var tween = {
+        linear : function(t,b,c,d){
+           return c*t/d + b;
+        },
+        easeIn :function(t,b,c,d){
+           return c * (t/=d)*t+b;
+        },
+        strongEaseIn:function(t,b,c,d){
+           return c*(t/=d)*t*t*t*t+b;
+        },
+        strongEaseOut:function(t,b,c,d){
+          return c*((t=t/d-1)*t*t*t*t+1)+b;
+        },
+        sineaseIn:function(t,b,c,d){
+          return c*(t/=d)*t*t+b;
+        },
+        sineaseOut:function(t,b,c,d){
+          return c*((t=t/d-1)*t*t+1)+b;
+        }
+      }
+
+      var Animate = function(dom){
+         this.dom = dom;
+         this.startTime = 0;
+         this.startPos = 0;
+         this.endPos = 0;
+         this.propertyName = null;
+         this.easing = null;
+         this.duration = null;
+      }
+
+      Animate.prototype.start = function(propertyName,endPos,duration,easing){
+         this.startTime = + new Date ;
+         this.startPos = this.dom.getBoundingClientRect()[propertyName];
+         this.endPos = endPos;
+         this.propertyName = propertyName;
+         this.easing = tween[easing];
+         this.duration = duration;
+
+         var self = this;
+         var timeId = setInterval(function(){
+            if(self.step() === false){
+               clearInterval(timeId);
+            }
+         },19);
+      }
+
+      Animate.prototype.step = function(){
+           var t = + new Date;
+           if(t >= this.startTime + this.duration){
+                this.update(this.endPos);
+                return false;
+           }
+
+           var pos = this.easing(t - this.startTime,this.startPos,this.endPos-this.startPos,this.duration);
+           this.update(pos);
+      }
+
+      Animate.prototype.update = function(pos){
+         this.dom.style[this.propertyName] = pos + 'px';
+      }
+
+
+      // test
+      var div = document.getElementById("div");
+      var animate = new Animate(div);
+      animate.start('left',500,1000,'strongEaseOut');
+  </script>
+  <!-- 表单验证 -->
+  <script>
+     var valiStrategies = {
+       isNonEmpty : function(value,errorMsg){
+            if(value === '')
+            {
+               return errorMsg;
+            }
+       },
+       minLength:function(value,length,errorMsg){
+         if(value.length < length)
+         {
+           return errorMsg;
+         }
+       },
+       isMobile:function(value,errorMsg){
+        if(!/(^1[3|5|8][0-9]{9}$)/.test(value)){
+           return errorMsg;
+        }
+       }
+     }
+
+     var Validator = function(){
+       this.cache = [];
+     }
+
+     Validator.prototype.add = function(dom,rules){
+       var self = this;
+
+       for(var i = 0 ,rule; rule = rules[i++];){
+          (function(rule){
+             var strategyAry = rule.strategy.split(':');
+             var errorMsg = rule.errorMsg;
+
+             self.cache.push(function(){
+                 var strategy = strategyAry.shift();
+                 strategyAry.unshift(dom.value);
+                 strategyAry.push(errorMsg);
+                 return valiStrategies[strategy].apply(dom,strategyAry)
+             });
+          })(rule);
+       }
+     }
+  </script>
+</body>
+</html>
