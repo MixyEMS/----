@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+   <!-- 代理模式-图片加载 -->
+  <script>
+     var myImage = (function(){
+          var imgNode = document.createElement('img');
+          document.body.appendChild(imgNode);
+
+          return {
+             setSrc : function(src){
+                imgNode.src = src ;
+             }
+          }
+     })();
+
+     var imgProxy = (function(){
+          var img = new Image();
+          img.onload = function(){
+             myImage.setSrc(this.src);
+          }
+
+          return {
+             setSrc : function(src,loading){
+                myImage.setSrc(loading);
+                img.src = src ;
+             }
+          }
+     })();
+
+     imgProxy.setSrc("images/proxy_img1.jpg","images/proxy_img2.gif");
+  </script>
+</body>
+</html>
