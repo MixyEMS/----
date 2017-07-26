@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+  <!-- 实现一个简单的迭代器 -->
+  <script>
+     var each = function(arr,callback){
+          for(var i = 0 , l = arr.length ; i < l ; i++){
+             callback.call(arr[i],i,arr[i]);
+          }
+     }
+
+     each([1,2,3,4,5],function(i,el){
+          console.log("第"+i+"个："+el+"\n");
+     });
+  </script>
+</body>
+</html>
