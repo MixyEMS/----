@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+ <style>
+  #replay{
+    margin-top:100px;
+  }
+ </style>
+</head>
+<body>
+<!-- 菜单部分 -->
+  <button id="button1">刷新菜单目录</button>
+  <button id="button2">增加子菜单</button>
+  <button id="button3">删除子菜单</button>
+
+  <!-- 撤销命令部分 -->
+  <div id="ball" style="position: absolute;background:green;width:50px;height: 50px;border-radius: 50%"></div>
+  输入小球移动后的位置：<input id="endPos" type="number">
+  <button id="start">start</button>
+  <button id="cancel">cancel</button>
+
+  <!-- 撤销和重做 -->
+  <button id="replay">播放录像</button>
+  <script>
+     
+
+     // receivers
+      var MenuBar = {
+         refresh:function(){
+             console.log("刷新菜单目录");
+         }
+      } 
+
+      var SubMenu = {
+         add:function(){
+             console.log("增加子菜单");
+         },
+         del:function(){
+             console.log("删除子菜单");
+         }
+      }
+
+      // command
+      var RefreshMenu = function(receiver){
+          this.receiver = receiver;
+      }
+      RefreshMenu.prototype.execute = function(){
+          this.receiver.refresh();
+      }
+
+       var AddMenu = function(receiver){
+          this.receiver = receiver;
+      }
+      AddMenu.prototype.execute = function(){
+          this.receiver.add();
+      }
+
+       var DelMenu = function(receiver){
+          this.receiver = receiver;
+      }
+      DelMenu.prototype.execute = function(){
+          this.receiver.del();
+      }
+
+       // *********************************
+      var setCommand = function(button,command){
+         button.onclick = function(){
+             command.execute();
+         }
+     }
+
+     // *********************************
+     var  refresh = new RefreshMenu(MenuBar);
+     var  add = new AddMenu(SubMenu);
+     var  del = new DelMenu(SubMenu);
+
+     var button1 = document.getElementById("button1");
+     var button2 = document.getElementById("button2");
+     var button3 = document.getElementById("button3");
+
+    
+     setCommand(button1,refresh);
+     setCommand(button2,add);
+     setCommand(button3,del);
+  </script>
+
+  <!-- 撤销命令 -->
+  <script src="js/animate_tween.js"></script>
+  <script>
+      var ball = document.getElementById("ball");
+      var endPos = document.getElementById("endPos");
+      var start = document.getElementById("start");
+      var cancel = document.getElementById("cancel");
+
+      var MoveCommand = function(receiver,pos){
+          this.receiver = receiver ;
+          this.pos = pos;
+          this.oldpos = null;
+      }
+
+      MoveCommand.prototype.execute = function(){
+         this.receiver.start('left',this.pos,1000,'strongEaseOut');
+         this.oldpos = this.receiver.dom.getBoundingClientRect()[this.receiver.propertyName]
+      }
+
+      MoveCommand.prototype.undo = function(){
+         this.receiver.start('left',this.oldpos,1000,'strongEaseOut');
+      }
+
+     var moveCommand ;
+
+     start.onclick = function(){
+        var animate = new Animate(ball);
+        moveCommand = new MoveCommand(animate,endPos.value);
+        moveCommand.execute();
+     }
+     cancel.onclick = function(){
+       moveCommand.undo();
+     }
+  </script>
+
+  <!-- 撤销和重做 -->
+
+  <script type="text/javascript">
+      var Ryu = {
+          attack : function(){
+            console.log("attack");
+          },
+          defense : function(){
+            console.log("defense");
+          },
+          jump : function(){
+            console.log("jump");
+          },
+          crouch : function(){
+            console.log("crouch");
+          }
+      }
+
+      var makeCommand = function(receiver,state){
+         return function(){
+            receiver[state]();
+         }
+      }
+
+      var commands ={
+        '119':"jump",
+        '115':'crouch',
+        '97':'defense',
+        '100':'attack'
+      }
+
+      var commandStack = [];
+
+      document.onkeypress = function(event){
+         var keyCode = event.keyCode,
+          action = commands[keyCode],
+          command;
+
+         if(action){
+          command = makeCommand(Ryu,action);
+         }
+
+         if(command){
+           command();
+           commandStack.push(command);
+         }
+      }
+
+      document.getElementById("replay").onclick = function(){
+        var command;
+
+        while(command = commandStack.shift()){
+           command();
+        }
+      }
+  </script>
+
+  <!-- 宏命令 批量执行那个 -->
+  <script>
+       var closeDoorCommand = {
+           execute:function(){
+             console.log("closeDoor");
+           }
+       };
+      var openPCCommand = {
+           execute:function(){
+             console.log("openPC");
+           }
+       };
+      var openQQCommand = {
+           execute:function(){
+             console.log("openQQ");
+           }
+       };
+
+       var MacroCommand = {
+         commandList:[],
+         add:function(command){
+            this.commandList.push(command);
+         },
+         execute:function(){
+           for(var i = 0 ,command; command = this.commandList[i++];){
+              command.execute();
+           }
+         }
+       }
+
+       MacroCommand.add(closeDoorCommand);
+       MacroCommand.add(openPCCommand);
+       MacroCommand.add(openQQCommand);
+
+       MacroCommand.execute();
+  </script>
+</body>
+</html>
